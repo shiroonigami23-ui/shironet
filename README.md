@@ -41,6 +41,13 @@ Notebook workflow:
 2. Open `notebooks/02_distillation_trial.ipynb` for distillation + adversarial iteration.
 3. Use Kaggle API for dataset pulls and Hugging Face Hub for large checkpoint storage.
 
+CLI workflow:
+```bash
+python scripts/kaggle_fetch.py --dataset owner/dataset-name --out data/raw
+# run your MyTorch training and write checkpoints into models/
+python scripts/hf_upload.py --repo-id <username>/<model-repo> --local-dir models --path-in-repo checkpoints --private
+```
+
 ## Tech Stack
 
 - Neon (serverless Postgres)

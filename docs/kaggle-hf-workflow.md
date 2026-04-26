@@ -1,14 +1,27 @@
-﻿# Kaggle + HF workflow helpers
+# Kaggle + HF Workflow
 
-## Kaggle dataset fetch
-1. Set `KAGGLE_USERNAME` and `KAGGLE_KEY`.
-2. Use notebook cells to run:
-   - `!kaggle datasets download -d <owner/dataset> -p ../data/raw --unzip`
+## 1) Kaggle dataset fetch (real command)
+1. Authenticate once:
+   - Env vars: `KAGGLE_USERNAME`, `KAGGLE_KEY`
+   - Or file: `~/.kaggle/kaggle.json`
+2. Run:
+   - `python scripts/kaggle_fetch.py --dataset owner/dataset-name --out data/raw`
 
-## Hugging Face model storage
-1. Set `HF_TOKEN`.
-2. Use `huggingface_hub` in training scripts to push large checkpoints.
+Example:
+- `python scripts/kaggle_fetch.py --dataset paultimothymooney/chest-xray-pneumonia --out data/raw`
 
-## Suggested bucket split
-- Supabase Storage: distilled datasets, metadata snapshots
-- Hugging Face Hub: model checkpoints and inference-ready artifacts
+## 2) Train locally and save checkpoints
+- Save checkpoints under `models/` (already ignored by git).
+
+## 3) Upload large checkpoints to Hugging Face Hub (real command)
+1. Export token:
+   - `HF_TOKEN=...`
+2. Run:
+   - `python scripts/hf_upload.py --repo-id <username>/<model-repo> --local-dir models --path-in-repo checkpoints --private`
+
+Example:
+- `python scripts/hf_upload.py --repo-id shiroonigami23-ui/shironet-edge --local-dir models --path-in-repo checkpoints --private`
+
+## Suggested storage split
+- Supabase Storage: distilled datasets, manifests, logs
+- Hugging Face Hub: model checkpoints and inference exports
