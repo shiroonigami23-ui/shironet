@@ -71,23 +71,31 @@ def main() -> int:
     parser.add_argument("--adv-eps", type=float, default=0.0, help="FGSM epsilon (0 disables adversarial step)")
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--save-dir", default="models")
+    parser.add_argument("--pretrained", action="store_true", help="Use ImageNet-pretrained ResNet18 backbone")
     args = parser.parse_args()
 
     data_root = Path(args.data_root)
     train_dir = _resolve_split(data_root, "train")
     val_dir = _resolve_split(data_root, "val") if (data_root / "val").exists() else _resolve_split(data_root, "test")
 
+    mean = [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
     tfm_train = transforms.Compose(
         [
-            transforms.Resize((args.img_size, args.img_size)),
-            transforms.RandomHorizontalFlip(),
+            transforms.RandomResizedCrop(args.img_size, scale=(0.7, 1.0)),
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.RandomRotation(degrees=12),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.03),
             transforms.ToTensor(),
+            transforms.Normalize(mean=mean, std=std),
+            transforms.RandomErasing(p=0.15, scale=(0.02, 0.10), ratio=(0.3, 3.3)),
         ]
     )
     tfm_eval = transforms.Compose(
         [
             transforms.Resize((args.img_size, args.img_size)),
             transforms.ToTensor(),
+            transforms.Normalize(mean=mean, std=std),
         ]
     )
 
@@ -102,7 +110,8 @@ def main() -> int:
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = models.resnet18(weights=None)
+    weights = models.ResNet18_Weights.DEFAULT if args.pretrained else None
+    model = models.resnet18(weights=weights)
     model.fc = nn.Linear(model.fc.in_features, len(train_ds.classes))
     model = model.to(device)
 
@@ -118,6 +127,7 @@ def main() -> int:
     print(f"Validation split from: {val_dir}")
     print(f"Classes: {train_ds.classes}")
     print(f"Device: {device}")
+    print(f"Pretrained backbone: {bool(args.pretrained)}")
 
     for epoch in range(1, args.epochs + 1):
         model.train()

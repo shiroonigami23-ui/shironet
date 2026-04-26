@@ -43,9 +43,10 @@ Notebook workflow:
 
 CLI workflow:
 ```bash
-python scripts/kaggle_fetch.py --dataset paultimothymooney/chest-xray-pneumonia --out data/raw
-python src/train.py --data-root data/raw --epochs 3 --batch-size 32 --adv-eps 0.015 --save-dir models
-python scripts/hf_upload.py --repo-name shironet-edge --local-dir models --path-in-repo checkpoints --private
+python scripts/kaggle_fetch.py --dataset puneet6060/intel-image-classification --out data/raw
+python src/data/prepare_dataset.py --input-root data/raw --output-root data/processed/intel_scenes --val-ratio 0.1
+python src/train.py --data-root data/processed/intel_scenes --epochs 10 --batch-size 32 --img-size 160 --lr 5e-4 --adv-eps 0.005 --save-dir models/intel_run --pretrained
+python scripts/hf_upload.py --repo-name shironet-edge --local-dir models/intel_run --path-in-repo checkpoints/intel-run --private
 ```
 
 ## Tech Stack
