@@ -1,0 +1,42 @@
+﻿__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.env
+.env.*
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Data and experiment artifacts
+/data/
+/models/
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.onnx
+*.engine
+*.tensorrt
+
+# Notebook artifacts
+.ipynb_checkpoints/
+
+# Logs and caches
+*.log
+.cache/
+.pytest_cache/
+.mypy_cache/
+
+# Secrets
+secrets.toml
+*.key

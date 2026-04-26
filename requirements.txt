@@ -1,0 +1,10 @@
+﻿torch>=2.3.0
+neon-sdk>=0.1.0
+supabase>=2.5.0
+tensorrt>=10.0.0
+numpy>=1.26.0
+pandas>=2.2.0
+matplotlib>=3.8.0
+kaggle>=1.6.0
+huggingface_hub>=0.24.0
+pytest>=8.2.0

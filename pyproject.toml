@@ -1,0 +1,37 @@
+﻿[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shironet"
+version = "0.1.0"
+description = "ShiroNet: A robust, distilled-dataset vision framework optimized for edge-inference and adversarial resilience."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+  { name = "ShiroNet Contributors" }
+]
+dependencies = [
+  "torch>=2.3.0",
+  "supabase>=2.5.0",
+  "huggingface_hub>=0.24.0",
+  "numpy>=1.26.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2.0",
+  "ruff>=0.5.0",
+  "mypy>=1.10.0"
+]
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
