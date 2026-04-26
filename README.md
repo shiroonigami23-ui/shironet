@@ -43,9 +43,9 @@ Notebook workflow:
 
 CLI workflow:
 ```bash
-python scripts/kaggle_fetch.py --dataset owner/dataset-name --out data/raw
-# run your MyTorch training and write checkpoints into models/
-python scripts/hf_upload.py --repo-id <username>/<model-repo> --local-dir models --path-in-repo checkpoints --private
+python scripts/kaggle_fetch.py --dataset paultimothymooney/chest-xray-pneumonia --out data/raw
+python src/train.py --data-root data/raw --epochs 3 --batch-size 32 --adv-eps 0.015 --save-dir models
+python scripts/hf_upload.py --repo-name shironet-edge --local-dir models --path-in-repo checkpoints --private
 ```
 
 ## Tech Stack
