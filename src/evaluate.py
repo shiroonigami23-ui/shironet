@@ -5,6 +5,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import torch
+from torch import nn
 from torchvision import datasets, models, transforms
 
 
@@ -45,7 +46,7 @@ def _compute_metrics(confusion: torch.Tensor) -> tuple[list[dict], float]:
     return rows, accuracy
 
 
-def _plot_confusion(confusion: torch.Tensor, classes: list[str], out_path: Path) -> None:
+def _plot_confusion(confusion: torch.Tensor, classes: list[str], out_path: Path, title: str) -> None:
     fig, ax = plt.subplots(figsize=(8, 6))
     im = ax.imshow(confusion.numpy(), interpolation="nearest", cmap="Blues")
     ax.figure.colorbar(im, ax=ax)
@@ -56,7 +57,7 @@ def _plot_confusion(confusion: torch.Tensor, classes: list[str], out_path: Path)
         yticklabels=classes,
         ylabel="True label",
         xlabel="Predicted label",
-        title="ShiroNet Intel Run2 Confusion Matrix",
+        title=title,
     )
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
 
@@ -77,7 +78,7 @@ def _plot_confusion(confusion: torch.Tensor, classes: list[str], out_path: Path)
     plt.close(fig)
 
 
-def _plot_precision_recall(rows: list[dict], classes: list[str], out_path: Path) -> None:
+def _plot_precision_recall(rows: list[dict], classes: list[str], out_path: Path, title: str) -> None:
     x = list(range(len(classes)))
     precision = [r["precision"] for r in rows]
     recall = [r["recall"] for r in rows]
@@ -90,11 +91,34 @@ def _plot_precision_recall(rows: list[dict], classes: list[str], out_path: Path)
     ax.set_xticklabels(classes, rotation=30, ha="right")
     ax.set_ylim(0, 1.0)
     ax.set_ylabel("Score")
-    ax.set_title("Class-wise Precision and Recall (Intel Run2)")
+    ax.set_title(title)
     ax.legend()
     fig.tight_layout()
     fig.savefig(out_path, dpi=180)
     plt.close(fig)
+
+
+def _fgsm_attack(
+    model: nn.Module,
+    x: torch.Tensor,
+    y: torch.Tensor,
+    eps: float,
+    mean: list[float],
+    std: list[float],
+) -> torch.Tensor:
+    eps_tensor = torch.tensor([eps / s for s in std], device=x.device).view(1, 3, 1, 1)
+    x_adv = x.detach().clone().requires_grad_(True)
+    logits = model(x_adv)
+    loss = nn.CrossEntropyLoss()(logits, y)
+    loss.backward()
+    grad_sign = x_adv.grad.sign()
+    adv = x_adv + eps_tensor * grad_sign
+
+    low = torch.tensor([(0.0 - m) / s for m, s in zip(mean, std)], device=x.device).view(1, 3, 1, 1)
+    high = torch.tensor([(1.0 - m) / s for m, s in zip(mean, std)], device=x.device).view(1, 3, 1, 1)
+    adv = torch.max(torch.min(adv, high), low).detach()
+    model.zero_grad(set_to_none=True)
+    return adv
 
 
 def main() -> int:
@@ -104,7 +128,14 @@ def main() -> int:
     parser.add_argument("--split", default="test", help="Dataset split to evaluate (default: test)")
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--num-workers", type=int, default=2)
-    parser.add_argument("--out-dir", default="docs/assets/intel_run2")
+    parser.add_argument("--out-dir", default="docs/assets/intel_eval")
+    parser.add_argument("--title", default="ShiroNet Evaluation")
+    parser.add_argument(
+        "--fgsm-eps",
+        type=float,
+        default=0.0,
+        help="FGSM epsilon in pixel space (e.g. 0.01). 0 disables adversarial eval.",
+    )
     args = parser.parse_args()
 
     ckpt = torch.load(args.checkpoint, map_location="cpu")
@@ -130,20 +161,38 @@ def main() -> int:
         ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, pin_memory=True
     )
 
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = models.resnet18(weights=None)
-    model.fc = torch.nn.Linear(model.fc.in_features, len(classes))
+    model.fc = nn.Linear(model.fc.in_features, len(classes))
     model.load_state_dict(ckpt["model_state_dict"])
+    model = model.to(device)
     model.eval()
 
     confusion = torch.zeros((len(classes), len(classes)), dtype=torch.int64)
     with torch.no_grad():
         for x, y in loader:
+            x = x.to(device, non_blocking=True)
+            y = y.to(device, non_blocking=True)
             logits = model(x)
             pred = logits.argmax(dim=1)
             for t, p in zip(y.view(-1), pred.view(-1)):
-                confusion[int(t), int(p)] += 1
+                confusion[int(t.item()), int(p.item())] += 1
 
     class_rows, accuracy = _compute_metrics(confusion)
+
+    fgsm_accuracy = None
+    if args.fgsm_eps > 0:
+        total = 0
+        correct = 0
+        for x, y in loader:
+            x = x.to(device, non_blocking=True)
+            y = y.to(device, non_blocking=True)
+            x_adv = _fgsm_attack(model, x, y, args.fgsm_eps, mean, std)
+            with torch.no_grad():
+                pred = model(x_adv).argmax(dim=1)
+            correct += int((pred == y).sum().item())
+            total += int(y.size(0))
+        fgsm_accuracy = correct / total if total > 0 else 0.0
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -158,6 +207,8 @@ def main() -> int:
         "split": args.split,
         "num_samples": int(confusion.sum().item()),
         "accuracy": accuracy,
+        "fgsm_eps": args.fgsm_eps,
+        "fgsm_accuracy": fgsm_accuracy,
         "classes": classes,
         "class_metrics": class_rows,
         "confusion_matrix": confusion.tolist(),
@@ -170,19 +221,23 @@ def main() -> int:
         for cls, row in zip(classes, class_rows):
             writer.writerow([cls, f"{row['precision']:.6f}", f"{row['recall']:.6f}", f"{row['f1']:.6f}", row["support"]])
 
-    _plot_confusion(confusion, classes, confusion_png)
-    _plot_precision_recall(class_rows, classes, pr_png)
+    _plot_confusion(confusion, classes, confusion_png, title=f"{args.title} Confusion Matrix")
+    _plot_precision_recall(class_rows, classes, pr_png, title=f"{args.title} Precision/Recall")
 
     lines = [
-        "# Intel Run2 Evaluation",
+        f"# {args.title}",
         "",
         f"- Split: `{args.split}`",
         f"- Samples: `{int(confusion.sum().item())}`",
         f"- Accuracy: `{accuracy:.4f}`",
+    ]
+    if fgsm_accuracy is not None:
+        lines.append(f"- FGSM Accuracy (eps={args.fgsm_eps}): `{fgsm_accuracy:.4f}`")
+    lines.extend([
         "",
         "| Class | Precision | Recall | F1 | Support |",
         "|---|---:|---:|---:|---:|",
-    ]
+    ])
     for cls, row in zip(classes, class_rows):
         lines.append(
             f"| {cls} | {row['precision']:.4f} | {row['recall']:.4f} | {row['f1']:.4f} | {row['support']} |"
@@ -190,6 +245,8 @@ def main() -> int:
     report_md.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     print(f"Evaluation complete. Accuracy={accuracy:.4f}")
+    if fgsm_accuracy is not None:
+        print(f"FGSM accuracy (eps={args.fgsm_eps}): {fgsm_accuracy:.4f}")
     print(f"Artifacts written to: {out_dir}")
     return 0
 

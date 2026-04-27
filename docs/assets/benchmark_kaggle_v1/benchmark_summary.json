@@ -1,0 +1,70 @@
+{
+  "prepare_report": {
+    "train_raw": {
+      "buildings": 2191,
+      "forest": 2271,
+      "glacier": 2404,
+      "mountain": 2512,
+      "sea": 2274,
+      "street": 2382
+    },
+    "train": {
+      "buildings": 1972,
+      "forest": 2044,
+      "glacier": 2164,
+      "mountain": 2261,
+      "sea": 2047,
+      "street": 2144
+    },
+    "val": {
+      "buildings": 219,
+      "forest": 227,
+      "glacier": 240,
+      "mountain": 251,
+      "sea": 227,
+      "street": 238
+    },
+    "test": {
+      "buildings": 437,
+      "forest": 474,
+      "glacier": 553,
+      "mountain": 525,
+      "sea": 510,
+      "street": 501
+    }
+  },
+  "baseline": {
+    "name": "baseline",
+    "checkpoint": "/kaggle/working/models/intel_baseline/model.pt",
+    "test_loss": 0.5137653315067291,
+    "test_acc": 0.8213333333333334,
+    "fgsm_eps_0_01_acc": 0.2693333333333333,
+    "classes": [
+      "buildings",
+      "forest",
+      "glacier",
+      "mountain",
+      "sea",
+      "street"
+    ]
+  },
+  "shironet": {
+    "name": "shironet",
+    "checkpoint": "/kaggle/working/models/intel_shironet/model.pt",
+    "test_loss": 0.41685063648223875,
+    "test_acc": 0.8506666666666667,
+    "fgsm_eps_0_01_acc": 0.7303333333333333,
+    "classes": [
+      "buildings",
+      "forest",
+      "glacier",
+      "mountain",
+      "sea",
+      "street"
+    ]
+  },
+  "delta": {
+    "test_acc": 0.029333333333333322,
+    "fgsm_eps_0_01_acc": 0.46099999999999997
+  }
+}

@@ -72,6 +72,12 @@ def main() -> int:
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--save-dir", default="models")
     parser.add_argument("--pretrained", action="store_true", help="Use ImageNet-pretrained ResNet18 backbone")
+    parser.add_argument(
+        "--augment-profile",
+        choices=["baseline", "shironet"],
+        default="shironet",
+        help="Augmentation profile: baseline (minimal) or shironet (strong)",
+    )
     args = parser.parse_args()
 
     data_root = Path(args.data_root)
@@ -80,17 +86,27 @@ def main() -> int:
 
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
-    tfm_train = transforms.Compose(
-        [
-            transforms.RandomResizedCrop(args.img_size, scale=(0.7, 1.0)),
-            transforms.RandomHorizontalFlip(p=0.5),
-            transforms.RandomRotation(degrees=12),
-            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.03),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=mean, std=std),
-            transforms.RandomErasing(p=0.15, scale=(0.02, 0.10), ratio=(0.3, 3.3)),
-        ]
-    )
+    if args.augment_profile == "baseline":
+        tfm_train = transforms.Compose(
+            [
+                transforms.Resize((args.img_size, args.img_size)),
+                transforms.RandomHorizontalFlip(p=0.5),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=mean, std=std),
+            ]
+        )
+    else:
+        tfm_train = transforms.Compose(
+            [
+                transforms.RandomResizedCrop(args.img_size, scale=(0.7, 1.0)),
+                transforms.RandomHorizontalFlip(p=0.5),
+                transforms.RandomRotation(degrees=12),
+                transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.03),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=mean, std=std),
+                transforms.RandomErasing(p=0.15, scale=(0.02, 0.10), ratio=(0.3, 3.3)),
+            ]
+        )
     tfm_eval = transforms.Compose(
         [
             transforms.Resize((args.img_size, args.img_size)),
@@ -128,6 +144,7 @@ def main() -> int:
     print(f"Classes: {train_ds.classes}")
     print(f"Device: {device}")
     print(f"Pretrained backbone: {bool(args.pretrained)}")
+    print(f"Augmentation profile: {args.augment_profile}")
 
     for epoch in range(1, args.epochs + 1):
         model.train()

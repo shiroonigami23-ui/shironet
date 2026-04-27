@@ -56,6 +56,18 @@ python scripts/hf_upload.py --repo-name shironet-edge --local-dir models/intel_r
 - MyTorch (custom training framework bridge)
 - PyTorch + TensorRT (training and inference)
 
+## Benchmark Snapshot
+
+Kaggle apples-to-apples benchmark on Intel Scenes (same split and backbone):
+- Baseline test accuracy: `82.13%`
+- ShiroNet test accuracy: `85.07%`
+- Delta: `+2.93` points
+- Baseline FGSM (`eps=0.01`): `26.93%`
+- ShiroNet FGSM (`eps=0.01`): `73.03%`
+- Robustness delta: `+46.10` points
+
+Detailed artifact: `docs/assets/benchmark_kaggle_v1/report.md`
+
 ## License
 
 MIT License. See [LICENSE](LICENSE).

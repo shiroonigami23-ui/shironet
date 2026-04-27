@@ -31,6 +31,7 @@ Thumbs.db
 
 # Notebook artifacts
 .ipynb_checkpoints/
+kaggle/**/run_output*/
 
 # Logs and caches
 *.log

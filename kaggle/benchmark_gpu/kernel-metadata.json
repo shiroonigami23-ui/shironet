@@ -1,0 +1,13 @@
+{
+  "id": "aryanchande23l/shironet-benchmark-gpu",
+  "title": "ShiroNet Benchmark GPU",
+  "code_file": "benchmark.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_internet": "true",
+  "dataset_sources": [
+    "puneet6060/intel-image-classification"
+  ]
+}
