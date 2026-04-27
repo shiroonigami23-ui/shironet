@@ -19,8 +19,8 @@ Thumbs.db
 .idea/
 
 # Data and experiment artifacts
-/data/
-/models/
+/data/*
+/models/*
 *.pth
 *.pt
 *.ckpt
@@ -28,6 +28,10 @@ Thumbs.db
 *.onnx
 *.engine
 *.tensorrt
+
+# Keep folder docs while still ignoring heavy artifacts
+!/data/README.md
+!/models/README.md
 
 # Notebook artifacts
 .ipynb_checkpoints/

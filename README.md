@@ -108,6 +108,55 @@ Optimization report:
 
 Source/credit details: `docs/assets/showcase/wikipedia/CREDITS.md`
 
+## Repository Map
+
+```mermaid
+flowchart TD
+    A[shironet] --> B[src]
+    A --> C[docs]
+    A --> D[scripts]
+    A --> E[notebooks]
+    A --> F[data]
+    A --> G[kaggle]
+    A --> H[tests]
+    B --> B1[data]
+    B --> B2[models]
+    B --> B3[training]
+    C --> C1[architecture]
+    C --> C2[protocols]
+    C --> C3[assets]
+    C3 --> C31[benchmark_kaggle_v1]
+    C3 --> C32[intel_run2]
+    C3 --> C33[optimization]
+    C3 --> C34[showcase]
+```
+
+### Folder Index
+
+- [data/README.md](data/README.md)
+- [docs/README.md](docs/README.md)
+- [docs/architecture/README.md](docs/architecture/README.md)
+- [docs/protocols/README.md](docs/protocols/README.md)
+- [docs/assets/README.md](docs/assets/README.md)
+- [docs/assets/benchmark_kaggle_v1/README.md](docs/assets/benchmark_kaggle_v1/README.md)
+- [docs/assets/intel_run2/README.md](docs/assets/intel_run2/README.md)
+- [docs/assets/optimization/README.md](docs/assets/optimization/README.md)
+- [docs/assets/optimization/edge_eval/README.md](docs/assets/optimization/edge_eval/README.md)
+- [docs/assets/showcase/README.md](docs/assets/showcase/README.md)
+- [docs/assets/showcase/wikipedia/README.md](docs/assets/showcase/wikipedia/README.md)
+- [docs/assets/showcase/wikipedia/alexnet/README.md](docs/assets/showcase/wikipedia/alexnet/README.md)
+- [docs/assets/showcase/wikipedia/residual_network/README.md](docs/assets/showcase/wikipedia/residual_network/README.md)
+- [docs/assets/showcase/wikipedia/vision_transformer/README.md](docs/assets/showcase/wikipedia/vision_transformer/README.md)
+- [kaggle/README.md](kaggle/README.md)
+- [kaggle/benchmark_gpu/README.md](kaggle/benchmark_gpu/README.md)
+- [notebooks/README.md](notebooks/README.md)
+- [scripts/README.md](scripts/README.md)
+- [src/README.md](src/README.md)
+- [src/data/README.md](src/data/README.md)
+- [src/models/README.md](src/models/README.md)
+- [src/training/README.md](src/training/README.md)
+- [tests/README.md](tests/README.md)
+
 ## License
 
 MIT License. See [LICENSE](LICENSE).

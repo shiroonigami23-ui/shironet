@@ -1,5 +1,9 @@
-﻿# Generated Showcase Assets
+# Assets
 
-This folder stores lightweight visual progress assets.
-- `training_curve.png` is generated from synthetic baseline metrics.
-- `model_evolution.gif` is a lightweight animation placeholder for showcase updates.
+Generated visuals and reports for benchmark and progress showcase.
+
+## Subfolders
+- `benchmark_kaggle_v1/`: apples-to-apples baseline vs ShiroNet benchmark results
+- `intel_run2/`: run2 confusion matrix and class metrics
+- `optimization/`: speed/size/edge optimization artifacts
+- `showcase/`: external visual references used in documentation
