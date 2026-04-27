@@ -68,6 +68,25 @@ Kaggle apples-to-apples benchmark on Intel Scenes (same split and backbone):
 
 Detailed artifact: `docs/assets/benchmark_kaggle_v1/report.md`
 
+Important comparison note:
+- This is a benchmark against our baseline training pipeline on Intel Scenes, not ImageNet-1k leaderboard numbers.
+- A direct "better than ImageNet model" claim requires training/evaluation on ImageNet-1k itself.
+
+## Architecture Showcase
+
+### Wikipedia Model Visuals
+
+`Residual Block (ResNet family)`  
+![Residual Block](docs/assets/showcase/wikipedia/residual_network/resblock.png)
+
+`AlexNet Block Diagram`  
+![AlexNet Block Diagram](docs/assets/showcase/wikipedia/alexnet/alexnet_block_diagram.png)
+
+`Vision Transformer Diagram`  
+![Vision Transformer](docs/assets/showcase/wikipedia/vision_transformer/vision_transformer.png)
+
+Source/credit details: `docs/assets/showcase/wikipedia/CREDITS.md`
+
 ## License
 
 MIT License. See [LICENSE](LICENSE).
