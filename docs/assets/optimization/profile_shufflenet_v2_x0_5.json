@@ -1,0 +1,10 @@
+{
+  "arch": "shufflenet_v2_x0_5",
+  "num_classes": 6,
+  "img_size": 160,
+  "batch_size": 1,
+  "device": "cpu",
+  "parameters": 347942,
+  "latency_ms_per_batch": 14.693108000000166,
+  "latency_ms_per_image": 14.693108000000166
+}

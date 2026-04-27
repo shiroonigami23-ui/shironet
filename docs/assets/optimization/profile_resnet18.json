@@ -1,0 +1,10 @@
+{
+  "arch": "resnet18",
+  "num_classes": 6,
+  "img_size": 160,
+  "batch_size": 1,
+  "device": "cpu",
+  "parameters": 11179590,
+  "latency_ms_per_batch": 19.501520999999684,
+  "latency_ms_per_image": 19.501520999999684
+}

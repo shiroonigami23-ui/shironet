@@ -72,6 +72,27 @@ Important comparison note:
 - This is a benchmark against our baseline training pipeline on Intel Scenes, not ImageNet-1k leaderboard numbers.
 - A direct "better than ImageNet model" claim requires training/evaluation on ImageNet-1k itself.
 
+## Optimization Track
+
+We now support lightweight edge architectures and profiling-first optimization.
+
+Supported training backbones:
+- `resnet18`
+- `mobilenet_v3_small`
+- `shufflenet_v2_x0_5`
+
+Quick profiling command:
+```bash
+python scripts/profile_model.py --arch shufflenet_v2_x0_5 --num-classes 6 --img-size 160 --batch-size 1 --device cpu --out docs/assets/optimization/profile_shufflenet_v2_x0_5.json
+```
+
+Current edge recommendation:
+- Use `shufflenet_v2_x0_5` for light + fast deployments
+- Continue robust training for adversarial gains
+
+Optimization report:
+- `docs/assets/optimization/report.md`
+
 ## Architecture Showcase
 
 ### Wikipedia Model Visuals

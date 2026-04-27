@@ -1,0 +1,1 @@
+"""ShiroNet source package."""

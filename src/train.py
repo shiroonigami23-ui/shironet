@@ -1,11 +1,14 @@
 import argparse
 import json
+from contextlib import nullcontext
 from pathlib import Path
 
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from torchvision import datasets, models, transforms
+from torchvision import datasets, transforms
+
+from src.models.factory import SUPPORTED_ARCHS, create_model
 
 
 def _resolve_split(root: Path, split: str) -> Path:
@@ -71,7 +74,10 @@ def main() -> int:
     parser.add_argument("--adv-eps", type=float, default=0.0, help="FGSM epsilon (0 disables adversarial step)")
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--save-dir", default="models")
-    parser.add_argument("--pretrained", action="store_true", help="Use ImageNet-pretrained ResNet18 backbone")
+    parser.add_argument("--pretrained", action="store_true", help="Use ImageNet-pretrained backbone")
+    parser.add_argument("--arch", choices=SUPPORTED_ARCHS, default="resnet18", help="Backbone architecture")
+    parser.add_argument("--amp", action="store_true", help="Use automatic mixed precision on CUDA")
+    parser.add_argument("--compile", action="store_true", help="Use torch.compile when available")
     parser.add_argument(
         "--augment-profile",
         choices=["baseline", "shironet"],
@@ -126,10 +132,12 @@ def main() -> int:
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    weights = models.ResNet18_Weights.DEFAULT if args.pretrained else None
-    model = models.resnet18(weights=weights)
-    model.fc = nn.Linear(model.fc.in_features, len(train_ds.classes))
+    use_amp = bool(args.amp and device.type == "cuda")
+    model = create_model(args.arch, num_classes=len(train_ds.classes), pretrained=args.pretrained)
     model = model.to(device)
+    if args.compile and hasattr(torch, "compile"):
+        model = torch.compile(model)  # type: ignore[attr-defined]
+    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
     loss_fn = nn.CrossEntropyLoss()
@@ -145,6 +153,9 @@ def main() -> int:
     print(f"Device: {device}")
     print(f"Pretrained backbone: {bool(args.pretrained)}")
     print(f"Augmentation profile: {args.augment_profile}")
+    print(f"Architecture: {args.arch}")
+    print(f"AMP: {use_amp}")
+    print(f"Compile: {bool(args.compile and hasattr(torch, 'compile'))}")
 
     for epoch in range(1, args.epochs + 1):
         model.train()
@@ -157,18 +168,24 @@ def main() -> int:
             y = y.to(device, non_blocking=True)
 
             optimizer.zero_grad(set_to_none=True)
-            logits = model(x)
-            loss = loss_fn(logits, y)
-            loss.backward()
-            optimizer.step()
+            amp_ctx = torch.cuda.amp.autocast(enabled=use_amp) if use_amp else nullcontext()
+            with amp_ctx:
+                logits = model(x)
+                loss = loss_fn(logits, y)
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
 
             if args.adv_eps > 0:
                 optimizer.zero_grad(set_to_none=True)
                 adv_x = _fgsm_attack(model, x, y, args.adv_eps)
-                adv_logits = model(adv_x)
-                adv_loss = loss_fn(adv_logits, y)
-                adv_loss.backward()
-                optimizer.step()
+                amp_ctx = torch.cuda.amp.autocast(enabled=use_amp) if use_amp else nullcontext()
+                with amp_ctx:
+                    adv_logits = model(adv_x)
+                    adv_loss = loss_fn(adv_logits, y)
+                scaler.scale(adv_loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
 
             running_loss += float(loss.item()) * x.size(0)
             pred = logits.argmax(dim=1)
@@ -186,6 +203,9 @@ def main() -> int:
             "val_loss": val_loss,
             "val_acc": val_acc,
             "adv_eps": args.adv_eps,
+            "arch": args.arch,
+            "amp": use_amp,
+            "compile": bool(args.compile and hasattr(torch, "compile")),
         }
         with metrics_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(row) + "\n")
@@ -196,12 +216,13 @@ def main() -> int:
             f"val_loss={val_loss:.4f} val_acc={val_acc:.4f}"
         )
 
+    ckpt_path = save_dir / f"shironet_{args.arch}.pt"
     torch.save(
         {
             "model_state_dict": model.state_dict(),
             "classes": train_ds.classes,
             "img_size": args.img_size,
-            "arch": "resnet18",
+            "arch": args.arch,
         },
         ckpt_path,
     )

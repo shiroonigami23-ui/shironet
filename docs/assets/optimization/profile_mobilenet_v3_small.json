@@ -1,0 +1,10 @@
+{
+  "arch": "mobilenet_v3_small",
+  "num_classes": 6,
+  "img_size": 160,
+  "batch_size": 1,
+  "device": "cpu",
+  "parameters": 1524006,
+  "latency_ms_per_batch": 16.406270999999606,
+  "latency_ms_per_image": 16.406270999999606
+}

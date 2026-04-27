@@ -6,7 +6,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import torch
 from torch import nn
-from torchvision import datasets, models, transforms
+from torchvision import datasets, transforms
+
+from src.models.factory import create_model
 
 
 def _resolve_split(root: Path, split: str) -> Path:
@@ -162,8 +164,8 @@ def main() -> int:
     )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = models.resnet18(weights=None)
-    model.fc = nn.Linear(model.fc.in_features, len(classes))
+    arch = ckpt.get("arch", "resnet18")
+    model = create_model(arch, num_classes=len(classes), pretrained=False)
     model.load_state_dict(ckpt["model_state_dict"])
     model = model.to(device)
     model.eval()
