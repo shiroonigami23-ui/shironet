@@ -1,0 +1,21 @@
+{
+  "arch": "shufflenet_v2_x0_5",
+  "checkpoint": "models\\intel_shironet_edge\\shironet_shufflenet_v2_x0_5.pt",
+  "img_size": 160,
+  "batch_size": 1,
+  "latency_ms": {
+    "fp32_cpu": 5.938380999996298,
+    "fp32_gpu": null,
+    "torchscript_cpu": 4.190945999998803,
+    "dynamic_int8_cpu": 5.9943810000004305
+  },
+  "artifacts": {
+    "torchscript": "docs\\assets\\optimization\\export_benchmark\\shufflenet_v2_x0_5_ts.pt",
+    "onnx": "docs\\assets\\optimization\\export_benchmark\\shufflenet_v2_x0_5.onnx",
+    "dynamic_quant_state_dict": "docs\\assets\\optimization\\export_benchmark\\shufflenet_v2_x0_5_dynamic_q.pt"
+  },
+  "onnx_export": {
+    "success": true,
+    "error": ""
+  }
+}

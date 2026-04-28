@@ -1,0 +1,13 @@
+{
+  "id": "aryanchande23l/shironet-train-gpu",
+  "title": "ShiroNet Train GPU",
+  "code_file": "train_kaggle.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_internet": "true",
+  "dataset_sources": [
+    "puneet6060/intel-image-classification"
+  ]
+}

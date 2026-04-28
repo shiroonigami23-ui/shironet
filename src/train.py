@@ -72,6 +72,8 @@ def main() -> int:
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--img-size", type=int, default=224)
     parser.add_argument("--adv-eps", type=float, default=0.0, help="FGSM epsilon (0 disables adversarial step)")
+    parser.add_argument("--adv-eps-start", type=float, default=None, help="Start epsilon for adversarial schedule")
+    parser.add_argument("--adv-eps-end", type=float, default=None, help="End epsilon for adversarial schedule")
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--save-dir", default="models")
     parser.add_argument("--pretrained", action="store_true", help="Use ImageNet-pretrained backbone")
@@ -158,6 +160,13 @@ def main() -> int:
     print(f"Compile: {bool(args.compile and hasattr(torch, 'compile'))}")
 
     for epoch in range(1, args.epochs + 1):
+        if args.adv_eps_start is not None and args.adv_eps_end is not None and args.epochs > 1:
+            adv_eps_epoch = args.adv_eps_start + (args.adv_eps_end - args.adv_eps_start) * ((epoch - 1) / (args.epochs - 1))
+        elif args.adv_eps_start is not None:
+            adv_eps_epoch = args.adv_eps_start
+        else:
+            adv_eps_epoch = args.adv_eps
+
         model.train()
         running_loss = 0.0
         running_total = 0
@@ -176,9 +185,9 @@ def main() -> int:
             scaler.step(optimizer)
             scaler.update()
 
-            if args.adv_eps > 0:
+            if adv_eps_epoch > 0:
                 optimizer.zero_grad(set_to_none=True)
-                adv_x = _fgsm_attack(model, x, y, args.adv_eps)
+                adv_x = _fgsm_attack(model, x, y, adv_eps_epoch)
                 amp_ctx = torch.cuda.amp.autocast(enabled=use_amp) if use_amp else nullcontext()
                 with amp_ctx:
                     adv_logits = model(adv_x)
@@ -202,7 +211,7 @@ def main() -> int:
             "train_acc": train_acc,
             "val_loss": val_loss,
             "val_acc": val_acc,
-            "adv_eps": args.adv_eps,
+            "adv_eps": adv_eps_epoch,
             "arch": args.arch,
             "amp": use_amp,
             "compile": bool(args.compile and hasattr(torch, "compile")),
@@ -213,7 +222,8 @@ def main() -> int:
         print(
             f"Epoch {epoch}/{args.epochs} | "
             f"train_loss={train_loss:.4f} train_acc={train_acc:.4f} "
-            f"val_loss={val_loss:.4f} val_acc={val_acc:.4f}"
+            f"val_loss={val_loss:.4f} val_acc={val_acc:.4f} "
+            f"adv_eps={adv_eps_epoch:.4f}"
         )
 
     ckpt_path = save_dir / f"shironet_{args.arch}.pt"

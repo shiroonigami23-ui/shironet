@@ -92,6 +92,10 @@ Current edge recommendation:
 
 Optimization report:
 - `docs/assets/optimization/report.md`
+- `docs/assets/optimization/latency_table.md`
+
+Export + deployment benchmark artifacts:
+- `docs/assets/optimization/export_benchmark/report.md`
 
 ## Architecture Showcase
 
