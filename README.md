@@ -38,14 +38,14 @@ python -m src
 
 Notebook workflow:
 1. Open `notebooks/01_baseline_test.ipynb` for baseline sanity checks.
-2. Open `notebooks/02_distillation_trial.ipynb` for distillation + adversarial iteration.
-3. Use Kaggle API for dataset pulls and Hugging Face Hub for large checkpoint storage.
+2. Open `notebooks/02_distillation_trial.ipynb` for end-to-end training + upload workflow.
+3. Open `notebooks/03_edge_training_t4_schedule.ipynb` for adversarial schedule edge training.
+4. Open `notebooks/04_export_quantization_latency.ipynb` for export/quantization/latency benchmarking.
+5. Open `notebooks/05_kaggle_t4_results.ipynb` for Kaggle T4 result analysis.
 
-CLI workflow:
+Minimal CLI support:
 ```bash
 python scripts/kaggle_fetch.py --dataset puneet6060/intel-image-classification --out data/raw
-python src/data/prepare_dataset.py --input-root data/raw --output-root data/processed/intel_scenes --val-ratio 0.1
-python src/train.py --data-root data/processed/intel_scenes --epochs 10 --batch-size 32 --img-size 160 --lr 5e-4 --adv-eps 0.005 --save-dir models/intel_run --pretrained
 python scripts/hf_upload.py --repo-name shironet-edge --local-dir models/intel_run --path-in-repo checkpoints/intel-run --private
 ```
 
@@ -81,10 +81,8 @@ Supported training backbones:
 - `mobilenet_v3_small`
 - `shufflenet_v2_x0_5`
 
-Quick profiling command:
-```bash
-python scripts/profile_model.py --arch shufflenet_v2_x0_5 --num-classes 6 --img-size 160 --batch-size 1 --device cpu --out docs/assets/optimization/profile_shufflenet_v2_x0_5.json
-```
+Notebook-first profiling/export workflow:
+- `notebooks/04_export_quantization_latency.ipynb`
 
 Current edge recommendation:
 - Use `shufflenet_v2_x0_5` for light + fast deployments
