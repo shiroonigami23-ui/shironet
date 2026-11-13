@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.svg" alt="ShiroNet banner" width="100%">
+<img src="assets/banner.gif" alt="ShiroNet animated banner" width="100%">
 
 # 🧠 ShiroNet
 
@@ -20,12 +20,9 @@
 
 ## 📸 Preview
 
-<p align="center">
-  <img src="docs/assets/model_evolution.gif" alt="preview" width="45%">
-  <img src="docs/assets/training_curve.png" alt="preview" width="45%">
-  <img src="docs/assets/intel_run2/confusion_matrix.png" alt="preview" width="45%">
-  <img src="docs/assets/intel_run2/precision_recall.png" alt="preview" width="45%">
-</p>
+<p align="center"><img src="assets/showcase.gif" alt="ShiroNet showcase" width="85%"></p>
+
+<p align="center"><img src="docs/assets/model_evolution.gif" alt="ShiroNet preview" width="85%"></p>
 
 ## 📖 Overview
 
@@ -215,13 +212,13 @@ See [CHANGELOG.md](CHANGELOG.md) for the release history.
 
 ## 📄 License
 
-Distributed under the **MIT License**. See [LICENSE](LICENSE) for details.
+Distributed under the **MIT** license. See [LICENSE](LICENSE) for details.
 
 ## 👤 Author
 
 **Aryan Singh Chandel** (Shiro)
 
-[![GitHub](https://img.shields.io/badge/GitHub-shiroonigami23-ui-181717?style=flat-square&logo=github)](https://github.com/shiroonigami23-ui)
+[![GitHub](https://img.shields.io/badge/GitHub-shiroonigami23--ui-181717?style=flat-square&logo=github)](https://github.com/shiroonigami23-ui)
 
 <div align="center">
 
