@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.gif" alt="ShiroNet animated banner" width="100%">
+<img src="docs/assets/model_evolution.gif" alt="ShiroNet" width="80%">
 
 # 🧠 ShiroNet
 
@@ -21,8 +21,6 @@
 ## 📸 Preview
 
 <p align="center"><img src="assets/showcase.gif" alt="ShiroNet showcase" width="85%"></p>
-
-<p align="center"><img src="docs/assets/model_evolution.gif" alt="ShiroNet preview" width="85%"></p>
 
 ## 📖 Overview
 
