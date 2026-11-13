@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/model_evolution.gif" alt="ShiroNet" width="80%">
+<img src="assets/shironet-anim.gif" alt="ShiroNet" width="100%">
 
 # 🧠 ShiroNet
 
@@ -18,9 +18,13 @@
 
 ---
 
+<p align="center"><img src="assets/hero.png" alt="ShiroNet art" width="49%"> <img src="assets/shield-chip.png" alt="ShiroNet art" width="49%"></p>
+
 ## 📸 Preview
 
 <p align="center"><img src="assets/showcase.gif" alt="ShiroNet showcase" width="85%"></p>
+
+<p align="center"><img src="docs/assets/model_evolution.gif" alt="ShiroNet preview" width="85%"></p>
 
 ## 📖 Overview
 
